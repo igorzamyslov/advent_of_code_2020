@@ -1,5 +1,5 @@
 # Running the solution file
 
 ```sh
-python3 solution.py
+npm ci --only=production && npm start
 ```

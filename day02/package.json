@@ -1,0 +1,19 @@
+{
+  "name": "day02",
+  "version": "1.0.0",
+  "description": "Solution for day02 of Advent of Code 2020",
+  "main": "solution.js",
+  "type": "module",
+  "scripts": {
+    "start": "node solution.js"
+  },
+  "author": "Igor Zamyslov",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.14.0",
+    "eslint-config-google": "^0.14.0"
+  }
+}
