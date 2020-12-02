@@ -5,7 +5,7 @@ from typing import List
 
 
 def read_input():
-    with open("day01/input.txt") as f:
+    with open("input.txt") as f:
         data = list(map(int, f.readlines()))
     return data
 
