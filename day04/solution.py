@@ -15,24 +15,12 @@ validators = {
     "pid": r"\d{9}",
 }
 
-def read_input() -> List[str]:
-    with open("input.txt") as f:
-        lines = [line.strip() for line in f.readlines()]
-    return lines
 
-def get_parsed_lines() -> List[Dict[str, str]]:
-    lines = read_input()
-    output = []
-    passport = {}
-    for line in lines:
-        if line:
-            passport.update(key_value_string.split(":") 
-                            for key_value_string in line.split(" "))
-        else:
-            output.append(passport)
-            passport = {}
-    output.append(passport)
-    return output
+def get_passports() -> List[Dict[str, str]]:
+    with open("input.txt") as f:
+        return [dict(re.findall(r"(.{3}):(.+?)(?:\s|$)", passport_string))
+                for passport_string in f.read().split("\n\n")]
+
 
 def passport_is_valid(passport, validate_values: bool) -> bool:
     if set(validators.keys()).issubset(set(passport.keys())):
@@ -46,7 +34,7 @@ def passport_is_valid(passport, validate_values: bool) -> bool:
 
 
 def find_answer(validate_values) -> int:
-    return sum(1 for passport in get_parsed_lines() 
+    return sum(1 for passport in get_passports() 
                if passport_is_valid(passport, validate_values))
 
 
