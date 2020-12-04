@@ -23,19 +23,15 @@ def get_passports() -> List[Dict[str, str]]:
 
 
 def passport_is_valid(passport, validate_values: bool) -> bool:
-    if set(validators.keys()).issubset(set(passport.keys())):
-        if not validate_values:
-            return True
-    else:
-        return False
-
-    return all(re.match(validator, passport[key]) 
-               for key, validator in validators.items())
+    return (set(validators.keys()).issubset(set(passport.keys()))
+            and (not validate_values 
+                 or all(re.match(validator, passport[key]) 
+                        for key, validator in validators.items())))
 
 
 def find_answer(validate_values) -> int:
-    return sum(1 for passport in get_passports() 
-               if passport_is_valid(passport, validate_values))
+    return sum(passport_is_valid(passport, validate_values) 
+               for passport in get_passports())
 
 
 if __name__ == "__main__":
