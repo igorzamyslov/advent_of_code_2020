@@ -17,10 +17,20 @@ def get_passports() -> List[Dict[str, str]]:
     with open("input.txt") as f:
         return [dict(re.findall(r"(.{3}):(.+?)(?:\s|$)", passport_string))
                 for passport_string in f.read().split("\n\n")]
+        
+
+def get_passports_v2() -> List[Dict[str, str]]:
+    """ regex-only solution """
+    with open("input.txt") as f:
+        regex = re.compile("(?m)(?:^(?<=\n\n)|\A)" 
+                           + "".join(f"(?=(?:(.|.\n)*?{key}:(?P<{key}>.+?)\s{{1}})?)"
+                                     for key in validators.keys()))
+        return [m.groupdict() for m in regex.finditer(f.read())]
 
 
 def passport_is_valid(passport, validate_values: bool) -> bool:
     return (set(validators.keys()).issubset(set(passport.keys()))
+            and all(passport.values())
             and (not validate_values 
                  or all(re.match(validator, passport[key]) 
                         for key, validator in validators.items())))
@@ -28,7 +38,7 @@ def passport_is_valid(passport, validate_values: bool) -> bool:
 
 def find_answer(validate_values) -> int:
     return sum(passport_is_valid(passport, validate_values) 
-               for passport in get_passports())
+               for passport in get_passports_v2())
 
 
 if __name__ == "__main__":
