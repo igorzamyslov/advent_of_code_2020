@@ -1,5 +1,6 @@
 import operator
 from functools import reduce
+from itertools import starmap
 from typing import List
 
 
@@ -12,7 +13,7 @@ def read_input() -> List[str]:
 def find_answer_part_one(right_step: int, down_step: int) -> int:
     counter = 0
     for i, line in enumerate(read_input()):
-        if i == 0 or i % down_step != 0: 
+        if i == 0 or i % down_step != 0:
             continue
         index = (right_step * i // down_step + 1) % len(line) - 1
         if line[index] == "#":
@@ -28,7 +29,7 @@ def find_answer_part_two() -> int:
         (7, 1),
         (1, 2),
     ]
-    return reduce(operator.mul, (find_answer_part_one(*c) for c in cases))
+    return reduce(operator.mul, starmap(find_answer_part_one, cases))
 
 
 if __name__ == "__main__":
