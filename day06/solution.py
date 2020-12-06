@@ -5,13 +5,13 @@ def get_answers() -> List[Tuple[str, ...]]:
         return [tuple(person for person in group.split("\n")) 
                 for group in f.read().split("\n\n")]
 
-def count_unique_answers_per_group():
+def count_unique_answers_per_group() -> int:
     return sum(len(set(answer
                        for person in group
                        for answer in person))
                    for group in get_answers())
 
-def count_common_answers_per_group():
+def count_common_answers_per_group() -> int:
     return sum(len(set.intersection(*(set(answer for answer in person)
                                       for person in group)))
                for group in get_answers())
