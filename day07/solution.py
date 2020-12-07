@@ -3,7 +3,7 @@ from typing import Tuple, Dict, Set
 
 
 ContainedColoursInfoType = Dict[str, int]
-ColoursInfoType = Dict[str, Dict[str, int]]
+ColoursInfoType = Dict[str, ContainedColoursInfoType]
 
 
 def _parse_line(line: str) -> Tuple[str, ContainedColoursInfoType]:
