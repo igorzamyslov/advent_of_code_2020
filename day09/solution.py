@@ -1,9 +1,5 @@
-from typing import Tuple, Set, List
-from enum import Enum, auto
-from itertools import combinations
-
-
-CommandType = Tuple[str, int]
+from typing import List
+from itertools import combinations, product
 
 
 def get_parsed_lines() -> List[int]:
@@ -13,20 +9,18 @@ def get_parsed_lines() -> List[int]:
 
 def find_first_error(numbers: List[int], preamble: int) -> int:
     for i in range(preamble, len(numbers)):
-        if not any(sum(c) == numbers[i]
-                   for c in combinations(numbers[i-preamble:i], r=2)):
+        if not any(sum(c) == numbers[i] for c in combinations(numbers[i-preamble:i], r=2)):
             return numbers[i]
     raise ValueError("Value not found")
 
 
 def find_encryption_weakness(numbers: List[int], first_error: int) -> int:
-    for i in range(len(numbers)):
-        for j in range(1, len(numbers) + 1):
-            if j <= i:
-                continue
-            slice = numbers[i:j]
-            if sum(slice) == first_error:
-                return min(slice) + max(slice)
+    for i, j in product(range(len(numbers)), range(1, len(numbers) + 1)):
+        if i >= j:
+            continue
+        slice = numbers[i:j]
+        if sum(slice) == first_error:
+            return min(slice) + max(slice)
     raise ValueError("Weakness not found")
 
 
