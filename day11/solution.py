@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from copy import deepcopy
 from typing import List, Tuple, Dict, Optional
-from itertools import groupby
+from itertools import groupby, product
 
 
 def get_parsed_lines() -> List[str]:
@@ -17,24 +17,29 @@ class Seat:
     occupied: bool
 
     def __str__(self) -> str:
+        """ Create string representation of the seat """
         return "#" if self.occupied else "L"
 
 
-@dataclass(frozen=True)
+@dataclass
 class Map:
     seats: Tuple[Seat, ...]
-    _adjacency_map: Optional[Dict[Tuple[int, int], List[int]]] = None
-    # ^ - stupid solution
+    _field: Optional[Dict[int, Dict[int, Seat]]] = None
 
     def __post_init__(self):
-        # in case object is created via a copy / replace
-        # skip the adjacency map generation
-        if not self._adjacency_map:
-            object.__setattr__(self, "_adjacency_map",
-                               {(s.x, s.y): self._get_adjacent_indexes(s)
-                                for s in self.seats})
+        """ Init field """
+        if not self._field:
+            field = {}
+            for seat in self.seats:
+                field.setdefault(seat.x, {})
+                field[seat.x][seat.y] = seat
+            object.__setattr__(self, "_field", field)
+
+    def __hash__(self):
+        return hash(self.seats)
 
     def __str__(self) -> str:
+        """ Create string representation of the map """
         max_x = max(s.x for s in self.seats)
         output_string = ""
         for _, line in groupby(sorted(self.seats, key=lambda s: (s.y, s.x)),
@@ -48,19 +53,15 @@ class Map:
             output_string += "\n"
         return output_string
 
-    def _get_adjacent_indexes(self, seat: Seat) -> List[int]:
-        adjacent_indexes: List[int] = []
-        for i, map_seat in enumerate(self.seats):
-            if ((map_seat.x != seat.x or map_seat.y != seat.y)
-                    and abs(map_seat.x - seat.x) <= 1
-                    and abs(map_seat.y - seat.y) <= 1):
-                adjacent_indexes.append(i)
-        return adjacent_indexes
-
     def get_adjacent_seats(self, seat: Seat) -> List[Seat]:
         adjacent_seats: List[Seat] = []
-        for i in self._adjacency_map[(seat.x, seat.y)]:
-            adjacent_seats.append(self.seats[i])
+        for delta_x, delta_y in product((-1, 0, 1), repeat=2):
+            if delta_x == delta_y and delta_y == 0:
+                continue
+            try:
+                adjacent_seats.append(self._field[seat.x+delta_x][seat.y+delta_y])
+            except KeyError:
+                continue
         return adjacent_seats
 
     def create_new_seat_state(self, seat: Seat) -> Seat:
@@ -76,8 +77,7 @@ class Map:
 
     def create_new_map_state(self) -> Map:
         """ Create new state of the map based on the set of rules """
-        return Map(seats=tuple(map(self.create_new_seat_state, self.seats)),
-                   _adjacency_map=self._adjacency_map)
+        return Map(seats=tuple(map(self.create_new_seat_state, self.seats)))
 
 
 def stabilize_map(map: Map, print_maps: bool = False) -> Map:
