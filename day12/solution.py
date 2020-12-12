@@ -96,7 +96,6 @@ class Waypoint(Executor, PositionAwareObject):
         return (self.coordinates["x"] - self.ship.coordinates["x"],
                 self.coordinates["y"] - self.ship.coordinates["y"])
 
-
     def execute_turn(self, turn: str, angle: int):
         dx, dy = self.get_dx_dy()
         distance = math.hypot(dx, dy)
