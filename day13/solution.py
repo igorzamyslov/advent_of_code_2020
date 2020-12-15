@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import winsound
 from typing import Dict, List, Optional, Tuple, Union
 from multiprocessing import Pool
 
@@ -28,10 +29,15 @@ def solve_part_two(enumerated_valid_buses: List[Tuple[int, int]], thread: int,
         if all((current_number - max_vb_i + i) % vb == 0
                for i, vb in enumerated_valid_buses):
             foundit.set()
+            frequency = 500  # Set Frequency To 2500 Hertz
+            duration = 1000  # Set Duration To 1000 ms == 1 second
+            winsound.Beep(frequency, duration)
+            print("Part 2 solution:", current_number - max_vb_i)
             break
         else:
             print(current_number)
             current_number += max_vb * (thread + 1)
+    # TODO: do a proper math solution
 
 
 def start_mp(enumerated_valid_buses: List[Tuple[int, int]]) -> int:
