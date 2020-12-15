@@ -1,9 +1,36 @@
 from __future__ import annotations
 
-import math
-import winsound
-from typing import Dict, List, Optional, Tuple, Union
-from multiprocessing import Pool
+from typing import List, Tuple
+from functools import reduce
+
+
+class ChineseTheoremSolver:
+    """
+    Chinese theorem solver, that was acquired from
+    https://rosettacode.org/wiki/Chinese_remainder_theorem#Python
+    """
+    @staticmethod
+    def chinese_remainder(n, a):
+        sum = 0
+        prod = reduce(lambda a, b: a*b, n)
+        for n_i, a_i in zip(n, a):
+            p = prod // n_i
+            sum += a_i * ChineseTheoremSolver.mul_inv(p, n_i) * p
+        return sum % prod
+
+    @staticmethod
+    def mul_inv(a, b):
+        b0 = b
+        x0, x1 = 0, 1
+        if b == 1:
+            return 1
+        while a > 1:
+            q = a // b
+            a, b = b, a % b
+            x0, x1 = x1 - q * x0, x0
+        if x1 < 0:
+            x1 += b0
+        return x1
 
 
 def get_parsed_lines() -> Tuple[int, List[str]]:
@@ -21,35 +48,13 @@ def solve_part_one(min_timestamp: int, valid_buses: List[int]) -> int:
     return diff * vb
 
 
-def solve_part_two(enumerated_valid_buses: List[Tuple[int, int]], thread: int,
-                   quit, foundit) -> int:
-    max_vb, max_vb_i = max((vb, i) for i, vb in enumerated_valid_buses)
-    current_number = 100000000000000 + 100000000000000 % max_vb + max_vb * thread
-    while not quit.is_set():
-        if all((current_number - max_vb_i + i) % vb == 0
-               for i, vb in enumerated_valid_buses):
-            foundit.set()
-            frequency = 500  # Set Frequency To 2500 Hertz
-            duration = 1000  # Set Duration To 1000 ms == 1 second
-            winsound.Beep(frequency, duration)
-            print("Part 2 solution:", current_number - max_vb_i)
-            break
-        else:
-            print(current_number)
-            current_number += max_vb * (thread + 1)
-    # TODO: do a proper math solution
-
-
-def start_mp(enumerated_valid_buses: List[Tuple[int, int]]) -> int:
-    import multiprocessing as mp
-    quit = mp.Event()
-    foundit = mp.Event()
-    for i in range(mp.cpu_count() * 2):
-        p = mp.Process(target=solve_part_two, 
-                       args=(enumerated_valid_buses, i, quit, foundit))
-        p.start()
-    foundit.wait()
-    quit.set()
+def solve_part_two(enumerated_valid_buses: List[Tuple[int, int]]):
+    indexes = []
+    mods = []
+    for i, vb in enumerated_valid_buses:
+        indexes.append(i * -1)
+        mods.append(vb)
+    return ChineseTheoremSolver.chinese_remainder(mods, indexes)
 
 
 def main():
@@ -60,7 +65,7 @@ def main():
     valid_buses = [b for i, b in enumerated_valid_buses]
     print(solve_part_one(min_timestamp, valid_buses))
     # part 2
-    start_mp(enumerated_valid_buses)
+    print(solve_part_two(enumerated_valid_buses))
 
 
 if __name__ == "__main__":
