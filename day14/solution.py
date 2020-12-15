@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 import itertools
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Tuple, Union
 
 
 def get_parsed_lines() -> List[Union[str, Tuple[int, int]]]:
