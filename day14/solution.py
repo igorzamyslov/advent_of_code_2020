@@ -8,13 +8,14 @@ from typing import Dict, List, Optional, Tuple, Union
 def get_parsed_lines() -> List[Union[str, Tuple[int, int]]]:
     regex = r"mem\[(\d+?)\] = (\d+)"
     with open("input.txt") as f:
-        output = []
+        output: List[Union[str, Tuple[int, int]]] = []
         for line in f.readlines():
             line = line.strip()
             if line.startswith("mask"):
                 output.append(line[7:])
             else:
-                output.append(tuple(map(int, re.match(regex, line).groups())))
+                address, value = map(int, re.match(regex, line).groups())
+                output.append((address, value))
         return output
 
 
@@ -24,6 +25,7 @@ def get_parsed_masks(mask: str) -> Tuple[int, int]:
 
 
 def get_possible_masks(mask: str) -> List[Tuple[int, int]]:
+    """ Create possible masks from floating Xs """
     float_indexes = [i for i, c in enumerate(mask) if c == "X"]
     if not float_indexes:
         return [get_parsed_masks(mask)]
