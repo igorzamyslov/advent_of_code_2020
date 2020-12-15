@@ -1,5 +1,5 @@
 # Running the solution file
 
 ```sh
-pip3 install -r requirements.txt && python3 solution.py
+python3 solution.py
 ```
