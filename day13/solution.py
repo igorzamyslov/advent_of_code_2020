@@ -49,11 +49,7 @@ def solve_part_one(min_timestamp: int, valid_buses: List[int]) -> int:
 
 
 def solve_part_two(enumerated_valid_buses: List[Tuple[int, int]]):
-    indexes = []
-    mods = []
-    for i, vb in enumerated_valid_buses:
-        indexes.append(i * -1)
-        mods.append(vb)
+    indexes, mods = zip(*((-i, vb) for i, vb in enumerated_valid_buses))
     return ChineseTheoremSolver.chinese_remainder(mods, indexes)
 
 
