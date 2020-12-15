@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import math
-import sympy
+import winsound
 from typing import Dict, List, Optional, Tuple, Union
+from multiprocessing import Pool
 
 
 def get_parsed_lines() -> Tuple[int, List[str]]:
@@ -20,10 +21,35 @@ def solve_part_one(min_timestamp: int, valid_buses: List[int]) -> int:
     return diff * vb
 
 
-def solve_part_two(enumerated_valid_buses: List[Tuple[int, int]]) -> int:
-    x, i, j, k = sympy.symbols("x, i, j, k")
-    s = sympy.linsolve([i*x - 17, j*x + 2*j - 13, k*x + 3*k - 19], [x, i, j, k])
-    print(s)
+def solve_part_two(enumerated_valid_buses: List[Tuple[int, int]], thread: int,
+                   quit, foundit) -> int:
+    max_vb, max_vb_i = max((vb, i) for i, vb in enumerated_valid_buses)
+    current_number = 100000000000000 + 100000000000000 % max_vb + max_vb * thread
+    while not quit.is_set():
+        if all((current_number - max_vb_i + i) % vb == 0
+               for i, vb in enumerated_valid_buses):
+            foundit.set()
+            frequency = 500  # Set Frequency To 2500 Hertz
+            duration = 1000  # Set Duration To 1000 ms == 1 second
+            winsound.Beep(frequency, duration)
+            print("Part 2 solution:", current_number - max_vb_i)
+            break
+        else:
+            print(current_number)
+            current_number += max_vb * (thread + 1)
+    # TODO: do a proper math solution
+
+
+def start_mp(enumerated_valid_buses: List[Tuple[int, int]]) -> int:
+    import multiprocessing as mp
+    quit = mp.Event()
+    foundit = mp.Event()
+    for i in range(mp.cpu_count() * 2):
+        p = mp.Process(target=solve_part_two, 
+                       args=(enumerated_valid_buses, i, quit, foundit))
+        p.start()
+    foundit.wait()
+    quit.set()
 
 
 def main():
@@ -34,7 +60,7 @@ def main():
     valid_buses = [b for i, b in enumerated_valid_buses]
     print(solve_part_one(min_timestamp, valid_buses))
     # part 2
-    print(solve_part_two(enumerated_valid_buses))
+    start_mp(enumerated_valid_buses)
 
 
 if __name__ == "__main__":
