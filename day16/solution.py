@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import List, Dict, Tuple, Iterable, Set
+from typing import List, Dict, Tuple, Set
 from functools import reduce
 import operator
 
@@ -64,6 +64,7 @@ def solve_part_two(parsed_input: ParsedInputType):
     valid_tickets = get_valid_tickets(parsed_input)
     notes, my_ticket, _ = parsed_input
     key_to_indexes: Dict[str, Set[int]] = {}
+    # define which keys can be covered by which indexes
     for key in notes:
         for i in range(len(my_ticket)):
             if all(any(value_in_range(ticket[i], r)
@@ -83,11 +84,11 @@ def solve_part_two(parsed_input: ParsedInputType):
             if len(indexes) > 1:
                 key_to_indexes[key] = indexes - single_indexes
 
+    # calculate required value
     return reduce(operator.mul,
                   (my_ticket[next(iter(indexes))]
                    for key, indexes in key_to_indexes.items()
                    if key.startswith("departure")))
-
 
 
 def main():
